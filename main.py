@@ -53,17 +53,17 @@ class DiscreteHubertEncoder():
 
             torch.cuda.empty_cache()
 
-            if len(feats) >= SHARD_SIZE:
-                torch.save({
-                    "feats": feats[:SHARD_SIZE], "lens": lens[:SHARD_SIZE]
-                }, f"km_data_new/yt-data-{shard_id}.pt")
-                shard_id += 1
-                feats = feats[SHARD_SIZE:]
-                lens = lens[SHARD_SIZE:]
-
-        torch.save({
-            "feats": feats, "lens": lens
-        }, f"km_data_new/yt-data-{shard_id}.pt")
+            # if len(feats) >= SHARD_SIZE:
+            #     torch.save({
+            #         "feats": feats[:SHARD_SIZE], "lens": lens[:SHARD_SIZE]
+            #     }, f"km_data_new/yt-data-{shard_id}.pt")
+            #     shard_id += 1
+            #     feats = feats[SHARD_SIZE:]
+            #     lens = lens[SHARD_SIZE:]
+            #
+        # torch.save({
+        #     "feats": feats, "lens": lens
+        # }, f"km_data_new/yt-data-{shard_id}.pt")
 
         return feats, lens
 
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     # Step 2: Kmeans quantization
     apply_kmeans = ApplyKmeans(args.km_model, use_gpu=True)
     ssl_units = [apply_kmeans(feat) for feat in feats]
-    print(len(ssl_units[0]))
+    # print(len(ssl_units[0]))
 
     # Step 3: Map unit to Chinese charactor
     unit_to_char = {}
@@ -134,15 +134,16 @@ if __name__ == "__main__":
         unit_to_char[int(l[0])] = l[1]
     ssl_units = [[unit_to_char[u] for u in seq] for seq in ssl_units]
     ssl_units = ["".join(seq) for seq in ssl_units]
-    print(len(ssl_units[0]))
+    # print(len(ssl_units[0]))
 
     # Step 4: convert to BPE token
     sp = spm.SentencePieceProcessor(model_file=args.bpe_model)
     bpe_units = [sp.encode(seq, out_type=str) for seq in ssl_units]
-    print(len(bpe_units[0]))
+    # print(len(bpe_units[0]))
 
     # Appendix: Compute average TPS
     durations = [librosa.get_duration(filename=file) for file in file_list]
+    # print(len(ssl_units), len(durations))
     ssl_units_tps = np.mean([len(ssl_units[i])/durations[i] for i in range(len(file_list))])
     bpe_units_tps = np.mean([len(bpe_units[i])/durations[i] for i in range(len(file_list))])
 

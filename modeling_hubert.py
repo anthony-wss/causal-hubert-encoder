@@ -784,7 +784,7 @@ class HubertSdpaAttention(HubertAttention):
         btz = attention_mask.shape[0]
         seq_len = attention_mask.shape[-1]
         if custom_masks[seq_len] is None:
-            custom_masks[seq_len] = create_causal_attention_mask(seq_len, 35*5)
+            custom_masks[seq_len] = create_causal_attention_mask(seq_len, 50*5)
         # masks = create_causal_attention_mask(seq_len, 35 * 5).to("cuda")
 
         from copy import deepcopy
